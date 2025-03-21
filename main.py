@@ -9,7 +9,7 @@ from browser_controller import BrowserController
 import base64
 from PIL import Image
 import io
-from handlers import Qwen2Handler
+from handlers import Qwen2Handler, Qwen2_5Handler
 from handlers.prompt import DefaultPromptTemplate, Gemma3PromptTemplate
 
 
@@ -27,10 +27,15 @@ LLM_CONFIGS = {
     #     "handler_class": Gemma3Handler,
     #     "prompt_class": Gemma3PromptTemplate
     # }
+    "Qwen2_5": {
+        "model_path": "/mnt/liuzikang/Qwen2.5-VL-7B-Instruct", 
+        "handler_class": Qwen2_5Handler,
+        "prompt_class": Gemma3PromptTemplate
+    }
 }
 
 class ScreenshotAgent:
-    def __init__(self, task: str, llm_type: str = "UITARS", max_steps: int = 15, start_url: str = "https://www.baidu.com/"):
+    def __init__(self, task: str, llm_type: str = "UITARS", max_steps: int = 15, start_url: str = "https://www.baidu.com/", enable_logging: bool = False):
         self.task = task
         self.max_steps = max_steps
         self.start_url = start_url
@@ -43,8 +48,9 @@ class ScreenshotAgent:
         self.model_path = llm_config["model_path"]
         self.llm_handler = llm_config["handler_class"](self.model_path)
         self.prompt_template = llm_config["prompt_class"]()
+        self.enable_logging = enable_logging
         
-        self.browser_controller = BrowserController()
+        self.browser_controller = BrowserController(self.enable_logging)
         
         self.history = []
         self.history_responses = []
@@ -117,7 +123,7 @@ class ScreenshotAgent:
                 # await self.print_message(messages)
                 response = self.llm_handler.invoke(messages)
                 print(f"\nCurrent step: {len(self.history) + 1}")
-                print(f"Assistant:\n {response}")
+                # print(f"Assistant:\n {response}")
                 
                 # Store response
                 self.history_responses.append(response)
@@ -170,14 +176,16 @@ async def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="基于大模型的GUI自动化代理")
-    parser.add_argument("--task", type=str, default="Search all the teachers in 中国人民大学 高瓴人工智能学院.",
+    parser.add_argument("--task", type=str, default="请搜索姚明的图片，找出他穿着11号球衣的照片",
                        help="要执行的任务描述")
-    parser.add_argument("--llm", type=str, choices=["UITARS", "gemma"], default="UITARS",
+    parser.add_argument("--llm", type=str, choices=["UITARS", "gemma", "Qwen2_5"], default="UITARS",
                        help="要使用的LLM类型")
     parser.add_argument("--max_steps", type=int, default=10,
                        help="最大执行步数")
     parser.add_argument("--start_url", type=str, default="https://www.baidu.com/",
                        help="起始URL")
+    parser.add_argument("--enable_logging", action="store_true",
+                       help="是否启用日志记录")
     
     args = parser.parse_args()
     
@@ -185,7 +193,8 @@ async def main():
         task=args.task,
         llm_type=args.llm,
         max_steps=args.max_steps,
-        start_url=args.start_url
+        start_url=args.start_url,
+        enable_logging=args.enable_logging
     )
     await agent.run()
 

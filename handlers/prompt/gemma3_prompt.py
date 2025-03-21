@@ -47,6 +47,7 @@ call_user() # Submit the task and call the user when the task is unsolvable, or 
 - Summarize your next action (with its target element) in `Action` part.
 - Your output should follow the output format strictly. Make sure your action is in the action space.
 - If you have multiple actions at one time, split them with a empty line.
+- Your coordinate should be in the format of `(x,y)`. (0,0) is the top-left corner of the screen. x, y should be from 0 to 1000.
 
 ## User Instruction
 {task}

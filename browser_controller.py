@@ -76,30 +76,30 @@ class BrowserController:
         }
         
         # 保存截图
-        if self.page:
-            screenshot_path = self.screenshots_dir / f"{timestamp.replace(':', '_')}.png"
-            await self.page.screenshot(path=str(screenshot_path))
-            log_entry["screenshot"] = str(screenshot_path)
+        # if self.page:
+        #     screenshot_path = self.screenshots_dir / f"{timestamp.replace(':', '_')}.png"
+        #     await self.page.screenshot(path=str(screenshot_path))
+        #     log_entry["screenshot"] = str(screenshot_path)
             
-            # 创建GIF
-            try:
-                images = []
-                for img_path in sorted(self.screenshots_dir.glob("*.png")):
-                    img = Image.open(img_path)
-                    images.append(img)
+        #     # 创建GIF
+        #     try:
+        #         images = []
+        #         for img_path in sorted(self.screenshots_dir.glob("*.png")):
+        #             img = Image.open(img_path)
+        #             images.append(img)
                 
-                if images:
-                    gif_path = self.visualization_dir / f"session_{self.session_id}.gif"
-                    images[0].save(
-                        gif_path,
-                        save_all=True,
-                        append_images=images[1:],
-                        duration=500,  # 每帧显示时间，单位为毫秒
-                        loop=0  # 无限循环
-                    )
-                    print(f"GIF updated at {gif_path}")
-            except Exception as e:
-                print(f"Error creating GIF: {e}")
+        #         if images:
+        #             gif_path = self.visualization_dir / f"session_{self.session_id}.gif"
+        #             images[0].save(
+        #                 gif_path,
+        #                 save_all=True,
+        #                 append_images=images[1:],
+        #                 duration=500,  # 每帧显示时间，单位为毫秒
+        #                 loop=0  # 无限循环
+        #             )
+        #             print(f"GIF updated at {gif_path}")
+        #     except Exception as e:
+        #         print(f"Error creating GIF: {e}")
         
         self.interaction_log.append(log_entry)
         
@@ -192,8 +192,10 @@ class BrowserController:
             if action_type == "click":
                 if "start_box" in action_inputs:
                     box = action_inputs["start_box"]
-                    x = round(float(box[0]) / 1000 * self.viewport["width"], 3)
-                    y = round(float(box[1]) / 1000 * self.viewport["height"], 3)
+                    # x = round(float(box[0]) / 1000 * self.viewport["width"], 3)
+                    # y = round(float(box[1]) / 1000 * self.viewport["height"], 3)
+                    x = round(float(box[0]), 3)
+                    y = round(float(box[1]), 3)
                     self.cursor_x = x
                     self.cursor_y = y
                     await page.mouse.click(x, y)
